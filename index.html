@@ -1,0 +1,2145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <title>Skylark (Edition 4)</title>
+
+  <!-- Website icons -->
+  <link rel="icon" href="web-icon.png">
+  <link rel="apple-touch-icon" href="web-icon.png">
+
+  <meta name="theme-color" content="#FFD60A">
+
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      --yellow: #FFD60A;
+      --yellow-deep: #E7B900;
+      --yellow-soft: rgba(255, 214, 10, 0.14);
+      --yellow-glow: rgba(255, 214, 10, 0.28);
+
+      --background: #F5F5F7;
+      --card: rgba(255, 255, 255, 0.82);
+
+      --text: #1D1D1F;
+      --secondary: #6E6E73;
+
+      --border: rgba(0, 0, 0, 0.07);
+
+      --disabled: #D1D1D6;
+      --disabled-text: #8E8E93;
+
+      --danger: #FF3B30;
+
+      --shadow:
+        0 16px 40px rgba(0, 0, 0, 0.07),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --background: #000000;
+        --card: rgba(28, 28, 30, 0.88);
+
+        --text: #F5F5F7;
+        --secondary: #A1A1A6;
+
+        --border: rgba(255, 255, 255, 0.09);
+
+        --yellow: #FFD60A;
+        --yellow-deep: #FFD60A;
+        --yellow-soft: rgba(255, 214, 10, 0.12);
+        --yellow-glow: rgba(255, 214, 10, 0.20);
+
+        --disabled: #2C2C2E;
+        --disabled-text: #636366;
+
+        --shadow:
+          0 16px 42px rgba(0, 0, 0, 0.38),
+          0 2px 8px rgba(0, 0, 0, 0.25);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+
+      background:
+        radial-gradient(
+          circle at top,
+          var(--yellow-soft),
+          transparent 430px
+        ),
+        var(--background);
+
+      color: var(--text);
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "SF Pro Display",
+        "SF Pro Text",
+        "Helvetica Neue",
+        Arial,
+        sans-serif;
+    }
+
+    a,
+    button {
+      font: inherit;
+    }
+
+    /* =====================================================
+       NOTIFICATIONS
+       ===================================================== */
+
+    #notificationCenter {
+      position: fixed;
+
+      top: calc(env(safe-area-inset-top) + 12px);
+      left: 50%;
+
+      width: min(calc(100% - 24px), 430px);
+
+      transform: translateX(-50%);
+
+      z-index: 9999;
+
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      pointer-events: none;
+    }
+
+    .notification {
+      position: relative;
+
+      width: 100%;
+
+      padding: 14px 15px;
+
+      overflow: hidden;
+
+      border-radius: 22px;
+
+      border:
+        1px solid
+        rgba(255, 214, 10, 0.28);
+
+      background:
+        rgba(250, 250, 250, 0.88);
+
+      backdrop-filter:
+        blur(28px)
+        saturate(180%);
+
+      -webkit-backdrop-filter:
+        blur(28px)
+        saturate(180%);
+
+      box-shadow:
+        0 14px 38px rgba(0, 0, 0, 0.14),
+        0 0 26px var(--yellow-glow);
+
+      pointer-events: auto;
+
+      touch-action: pan-y;
+
+      transform: translateX(0);
+
+      transition:
+        transform 0.28s cubic-bezier(.2,.8,.2,1),
+        opacity 0.28s ease;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .notification {
+        background:
+          rgba(34, 34, 36, 0.90);
+      }
+    }
+
+    .notification::before {
+      content: "";
+
+      position: absolute;
+
+      left: 0;
+      top: 0;
+      bottom: 0;
+
+      width: 4px;
+
+      background: var(--yellow);
+    }
+
+    .notification.danger::before {
+      background: var(--danger);
+    }
+
+    .notification.danger {
+      border-color:
+        rgba(255, 59, 48, 0.28);
+
+      box-shadow:
+        0 14px 38px rgba(0, 0, 0, 0.14),
+        0 0 24px rgba(255, 59, 48, 0.16);
+    }
+
+    .notification-top {
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      margin-bottom: 7px;
+    }
+
+    .notification-icon {
+      width: 28px;
+      height: 28px;
+
+      flex: 0 0 28px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 8px;
+
+      background: var(--yellow);
+
+      color: #111;
+
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .notification.danger
+    .notification-icon {
+      background: var(--danger);
+      color: white;
+    }
+
+    .notification-app {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .notification-time {
+      margin-left: auto;
+
+      color: var(--secondary);
+
+      font-size: 12px;
+    }
+
+    .notification-title {
+      margin: 0 0 3px;
+
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .notification-message {
+      margin: 0;
+
+      color: var(--secondary);
+
+      font-size: 14px;
+      line-height: 1.38;
+    }
+
+    .notification-action {
+      margin-top: 8px;
+
+      color: var(--yellow-deep);
+
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* =====================================================
+       PAGE
+       ===================================================== */
+
+    .page {
+      width: min(calc(100% - 32px), 720px);
+
+      margin: 0 auto;
+
+      padding:
+        calc(env(safe-area-inset-top) + 55px)
+        0
+        calc(env(safe-area-inset-bottom) + 35px);
+    }
+
+    /* =====================================================
+       HERO
+       ===================================================== */
+
+    .hero {
+      padding: 50px 0 30px;
+
+      text-align: center;
+    }
+
+    .edition-number {
+      position: relative;
+
+      width: 128px;
+      height: 128px;
+
+      margin:
+        0 auto
+        23px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 32px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #FFE66D,
+          var(--yellow)
+        );
+
+      color: #151515;
+
+      font-size: 76px;
+      line-height: 1;
+
+      font-weight: 800;
+
+      letter-spacing: -0.07em;
+
+      box-shadow:
+        0 18px 42px
+        var(--yellow-glow),
+        inset 0 1px 1px
+        rgba(255,255,255,.7);
+    }
+
+    .edition-number::after {
+      content: "";
+
+      position: absolute;
+
+      inset: 1px;
+
+      border-radius: 31px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.3);
+    }
+
+    h1 {
+      margin: 0;
+
+      font-size:
+        clamp(30px, 7vw, 42px);
+
+      line-height: 1.05;
+
+      letter-spacing: -0.045em;
+    }
+
+    #versionText {
+      min-height: 23px;
+
+      margin:
+        11px
+        0
+        0;
+
+      color: var(--secondary);
+
+      font-size: 17px;
+      font-weight: 500;
+    }
+
+    /* =====================================================
+       CARDS
+       ===================================================== */
+
+    .card {
+      margin-top: 18px;
+
+      padding: 22px;
+
+      border:
+        1px solid
+        var(--border);
+
+      border-radius: 26px;
+
+      background: var(--card);
+
+      backdrop-filter: blur(20px);
+
+      -webkit-backdrop-filter:
+        blur(20px);
+
+      box-shadow: var(--shadow);
+    }
+
+    .intro {
+      margin: 0;
+
+      color: var(--secondary);
+
+      text-align: center;
+
+      font-size: 16px;
+
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       GET SKYLARK
+       ===================================================== */
+
+    .download-area {
+      margin-top: 25px;
+    }
+
+    #getSkylark {
+      width: 100%;
+
+      min-height: 58px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      border: 0;
+
+      border-radius: 18px;
+
+      background: var(--yellow);
+
+      color: #151515;
+
+      text-decoration: none;
+
+      font-size: 18px;
+
+      font-weight: 750;
+
+      letter-spacing: -0.02em;
+
+      box-shadow:
+        0 9px 24px
+        var(--yellow-glow);
+
+      transition:
+        transform .15s ease,
+        box-shadow .15s ease;
+    }
+
+    #getSkylark:not(.disabled):active {
+      transform: scale(.98);
+    }
+
+    #getSkylark.disabled {
+      background: var(--disabled);
+
+      color: var(--disabled-text);
+
+      box-shadow: none;
+
+      pointer-events: none;
+    }
+
+    #compatibilityText {
+      margin:
+        13px
+        4px
+        0;
+
+      color: var(--secondary);
+
+      text-align: center;
+
+      font-size: 13px;
+
+      line-height: 1.4;
+    }
+
+    /* =====================================================
+       INFORMATION
+       ===================================================== */
+
+    .section-title {
+      margin:
+        0
+        0
+        15px;
+
+      font-size: 19px;
+
+      letter-spacing: -0.025em;
+    }
+
+    .info-row {
+      display: flex;
+
+      align-items: center;
+
+      gap: 18px;
+
+      min-height: 49px;
+
+      padding: 12px 0;
+
+      border-bottom:
+        1px solid
+        var(--border);
+    }
+
+    .info-row:last-child {
+      border-bottom: 0;
+    }
+
+    .info-label {
+      color: var(--secondary);
+
+      font-size: 15px;
+    }
+
+    .info-value {
+      margin-left: auto;
+
+      max-width: 60%;
+
+      text-align: right;
+
+      font-size: 15px;
+
+      font-weight: 600;
+    }
+
+    /* =====================================================
+       OFFICIAL UPDATES
+       ===================================================== */
+
+    .updates-card {
+      text-align: center;
+    }
+
+    .updates-icon {
+      width: 48px;
+      height: 48px;
+
+      margin:
+        0 auto
+        13px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 14px;
+
+      background: var(--yellow);
+
+      color: #111;
+
+      font-size: 23px;
+
+      font-weight: 800;
+
+      box-shadow:
+        0 8px 20px
+        var(--yellow-glow);
+    }
+
+    .updates-card h2 {
+      margin:
+        0
+        0
+        7px;
+
+      font-size: 19px;
+    }
+
+    .updates-card p {
+      margin: 0;
+
+      color: var(--secondary);
+
+      font-size: 15px;
+
+      line-height: 1.45;
+    }
+
+    .updates-link {
+      display: inline-block;
+
+      margin-top: 15px;
+
+      padding:
+        11px
+        17px;
+
+      border-radius: 14px;
+
+      background:
+        var(--yellow-soft);
+
+      color:
+        var(--yellow-deep);
+
+      text-decoration: none;
+
+      font-size: 15px;
+
+      font-weight: 700;
+    }
+
+    .updates-link:active {
+      transform: scale(.97);
+    }
+
+    /* =====================================================
+       QUICK LINKS
+       ===================================================== */
+
+    .quick-links {
+      margin-top: 31px;
+    }
+
+    .quick-links-title {
+      margin:
+        0
+        0
+        12px
+        6px;
+
+      color: var(--secondary);
+
+      font-size: 13px;
+
+      font-weight: 700;
+
+      text-transform: uppercase;
+
+      letter-spacing: .04em;
+    }
+
+    .quick-links-card {
+      padding: 0;
+
+      overflow: hidden;
+    }
+
+    .quick-link {
+      min-height: 56px;
+
+      padding:
+        0
+        18px;
+
+      display: flex;
+
+      align-items: center;
+
+      border-bottom:
+        1px solid
+        var(--border);
+
+      color: var(--text);
+
+      text-decoration: none;
+
+      font-size: 16px;
+
+      font-weight: 550;
+    }
+
+    .quick-link:last-child {
+      border-bottom: 0;
+    }
+
+    .quick-link::after {
+      content: "›";
+
+      margin-left: auto;
+
+      color: var(--secondary);
+
+      font-size: 27px;
+
+      font-weight: 300;
+    }
+
+    .quick-link:active {
+      background:
+        var(--yellow-soft);
+    }
+
+    /* =====================================================
+       FOOTER
+       ===================================================== */
+
+    footer {
+      padding:
+        30px
+        12px
+        5px;
+
+      color: var(--secondary);
+
+      text-align: center;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+    }
+
+    /* =====================================================
+       SMALL SCREENS
+       ===================================================== */
+
+    @media (max-width: 480px) {
+      .page {
+        width:
+          min(
+            calc(100% - 24px),
+            720px
+          );
+      }
+
+      .hero {
+        padding-top: 42px;
+      }
+
+      .edition-number {
+        width: 112px;
+        height: 112px;
+
+        border-radius: 28px;
+
+        font-size: 68px;
+      }
+
+      .card {
+        padding: 19px;
+
+        border-radius: 23px;
+      }
+
+      .quick-links-card {
+        padding: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Notifications -->
+  <div
+    id="notificationCenter"
+    aria-live="polite"
+    aria-label="Skylark notifications"
+  ></div>
+
+
+  <main class="page">
+
+    <!-- HERO -->
+
+    <header class="hero">
+
+      <div
+        class="edition-number"
+        aria-hidden="true"
+      >
+        4
+      </div>
+
+      <h1>
+        Skylark (Edition 4)
+      </h1>
+
+      <p id="versionText">
+        Loading edition information…
+      </p>
+
+    </header>
+
+
+    <!-- DOWNLOAD -->
+
+    <section class="card">
+
+      <p class="intro">
+        Get Skylark (Edition 4) for supported
+        versions of iOS and iPadOS.
+      </p>
+
+      <div class="download-area">
+
+        <a
+          id="getSkylark"
+          class="disabled"
+          aria-disabled="true"
+        >
+          Get Skylark
+        </a>
+
+        <p id="compatibilityText">
+          Checking compatibility…
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- EDITION INFORMATION -->
+
+    <section class="card">
+
+      <h2 class="section-title">
+        Edition Information
+      </h2>
+
+      <div class="info-row">
+
+        <span class="info-label">
+          Edition
+        </span>
+
+        <span class="info-value">
+          Edition 4
+        </span>
+
+      </div>
+
+      <div class="info-row">
+
+        <span class="info-label">
+          Version
+        </span>
+
+        <span
+          class="info-value"
+          id="infoVersion"
+        >
+          —
+        </span>
+
+      </div>
+
+      <div class="info-row">
+
+        <span class="info-label">
+          Compatibility
+        </span>
+
+        <span
+          class="info-value"
+          id="infoCompatibility"
+        >
+          —
+        </span>
+
+      </div>
+
+      <div class="info-row">
+
+        <span class="info-label">
+          Status
+        </span>
+
+        <span
+          class="info-value"
+          id="infoStatus"
+        >
+          Checking…
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- OFFICIAL EDITION UPDATES -->
+
+    <section class="card updates-card">
+
+      <div
+        class="updates-icon"
+        aria-hidden="true"
+      >
+        4
+      </div>
+
+      <h2>
+        Edition 4 Updates
+      </h2>
+
+      <p>
+        Follow @Skylrkedition4 for updates.
+      </p>
+
+      <a
+        class="updates-link"
+        href="https://x.com/Skylrkedition4"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        @Skylrkedition4
+      </a>
+
+    </section>
+
+
+    <!-- QUICK LINKS -->
+
+    <section class="quick-links">
+
+      <h2 class="quick-links-title">
+        Quick Links
+      </h2>
+
+      <div class="card quick-links-card">
+
+        <a
+          class="quick-link"
+          href="https://skylark-inc.github.io"
+        >
+          Skylark Home
+        </a>
+
+        <a
+          class="quick-link"
+          href="https://skylark-inc.github.io/FindEdition"
+        >
+          Find Edition
+        </a>
+
+        <a
+          class="quick-link"
+          href="https://skylark-inc.github.io/Support/"
+        >
+          Support
+        </a>
+
+        <a
+          class="quick-link"
+          href="https://skylark-inc.github.io/Support/Obsolete"
+        >
+          Skylark Obsolete
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <footer>
+      Skylark Inc.
+    </footer>
+
+  </main>
+
+
+  <script>
+    (() => {
+
+      "use strict";
+
+
+      /* =====================================================
+         SKYLARK SERVICES
+
+         Edition information itself is never stored here.
+         ===================================================== */
+
+      const MASTER_FILE =
+        "https://skylark-inc.github.io/editions.json";
+
+      const EDITION_NAME =
+        "Edition 4";
+
+      const FIND_EDITION =
+        "https://skylark-inc.github.io/FindEdition";
+
+      const AUTO_LAUNCHER =
+        "https://skylark-inc.github.io/AL";
+
+
+      /* =====================================================
+         ELEMENTS
+         ===================================================== */
+
+      const notificationCenter =
+        document.getElementById(
+          "notificationCenter"
+        );
+
+      const getSkylark =
+        document.getElementById(
+          "getSkylark"
+        );
+
+      const versionText =
+        document.getElementById(
+          "versionText"
+        );
+
+      const compatibilityText =
+        document.getElementById(
+          "compatibilityText"
+        );
+
+      const infoVersion =
+        document.getElementById(
+          "infoVersion"
+        );
+
+      const infoCompatibility =
+        document.getElementById(
+          "infoCompatibility"
+        );
+
+      const infoStatus =
+        document.getElementById(
+          "infoStatus"
+        );
+
+
+      /* =====================================================
+         VERSION UTILITIES
+         ===================================================== */
+
+      function parseVersion(version) {
+
+        if (!version) {
+          return null;
+        }
+
+        const cleaned =
+          String(version)
+            .trim()
+            .replace(/_/g, ".");
+
+        const match =
+          cleaned.match(
+            /^(\d+)(?:\.(\d+))?(?:\.(\d+))?/
+          );
+
+        if (!match) {
+          return null;
+        }
+
+        return [
+          Number(match[1] || 0),
+          Number(match[2] || 0),
+          Number(match[3] || 0)
+        ];
+      }
+
+
+      function compareVersions(a, b) {
+
+        const first =
+          Array.isArray(a)
+            ? a
+            : parseVersion(a);
+
+        const second =
+          Array.isArray(b)
+            ? b
+            : parseVersion(b);
+
+        if (!first || !second) {
+          return null;
+        }
+
+        for (let i = 0; i < 3; i++) {
+
+          if (first[i] > second[i]) {
+            return 1;
+          }
+
+          if (first[i] < second[i]) {
+            return -1;
+          }
+        }
+
+        return 0;
+      }
+
+
+      function sameMajorVersion(a, b) {
+
+        const first =
+          Array.isArray(a)
+            ? a
+            : parseVersion(a);
+
+        const second =
+          Array.isArray(b)
+            ? b
+            : parseVersion(b);
+
+        return (
+          first &&
+          second &&
+          first[0] === second[0]
+        );
+      }
+
+
+      /* =====================================================
+         DEVICE DETECTION
+         ===================================================== */
+
+      function detectDevice() {
+
+        const ua =
+          navigator.userAgent || "";
+
+        const iPhone =
+          /iPhone/i.test(ua);
+
+        const iPad =
+          /iPad/i.test(ua) ||
+          (
+            navigator.platform === "MacIntel" &&
+            navigator.maxTouchPoints > 1
+          );
+
+        const iPod =
+          /iPod/i.test(ua);
+
+        const appleMobile =
+          iPhone ||
+          iPad ||
+          iPod;
+
+        let version = null;
+
+
+        /*
+         * Preferred Safari detection.
+         *
+         * Example:
+         * Version/17.7.11 Mobile/15E148 Safari/604.1
+         */
+
+        const safariVersion =
+          ua.match(
+            /Version\/(\d+(?:\.\d+){0,2})/i
+          );
+
+        if (safariVersion) {
+          version =
+            safariVersion[1];
+        }
+
+
+        /*
+         * Fallback:
+         *
+         * CPU iPhone OS 17_7_11 like Mac OS X
+         */
+
+        if (!version) {
+
+          const osVersion =
+            ua.match(
+              /OS (\d+)[._](\d+)(?:[._](\d+))?/i
+            );
+
+          if (osVersion) {
+
+            version =
+              osVersion[1] +
+              "." +
+              osVersion[2] +
+              (
+                osVersion[3]
+                  ? "." + osVersion[3]
+                  : ""
+              );
+          }
+        }
+
+
+        return {
+
+          userAgent: ua,
+
+          appleMobile,
+
+          iPhone,
+
+          iPad,
+
+          iPod,
+
+          version,
+
+          parsedVersion:
+            parseVersion(version)
+
+        };
+      }
+
+
+      /* =====================================================
+         DOWNLOAD BUTTON
+         ===================================================== */
+
+      function disableDownload() {
+
+        getSkylark.classList.add(
+          "disabled"
+        );
+
+        getSkylark.removeAttribute(
+          "href"
+        );
+
+        getSkylark.setAttribute(
+          "aria-disabled",
+          "true"
+        );
+      }
+
+
+      function enableDownload(url) {
+
+        if (!url) {
+
+          disableDownload();
+
+          return;
+        }
+
+        getSkylark.classList.remove(
+          "disabled"
+        );
+
+        getSkylark.href = url;
+
+        getSkylark.setAttribute(
+          "aria-disabled",
+          "false"
+        );
+      }
+
+
+      /* =====================================================
+         NOTIFICATION SYSTEM
+         ===================================================== */
+
+      function createNotification({
+        title,
+        message,
+        icon = "4",
+        actionText = "",
+        destination = null,
+        danger = false
+      }) {
+
+        const notification =
+          document.createElement(
+            "div"
+          );
+
+        notification.className =
+          "notification" +
+          (
+            danger
+              ? " danger"
+              : ""
+          );
+
+
+        notification.innerHTML = `
+
+          <div class="notification-top">
+
+            <div class="notification-icon"></div>
+
+            <div class="notification-app">
+              Skylark
+            </div>
+
+            <div class="notification-time">
+              now
+            </div>
+
+          </div>
+
+          <p class="notification-title"></p>
+
+          <p class="notification-message"></p>
+
+          ${
+            actionText
+              ? `
+                <div class="notification-action">
+                </div>
+              `
+              : ""
+          }
+
+        `;
+
+
+        notification.querySelector(
+          ".notification-icon"
+        ).textContent =
+          icon;
+
+
+        notification.querySelector(
+          ".notification-title"
+        ).textContent =
+          title;
+
+
+        notification.querySelector(
+          ".notification-message"
+        ).textContent =
+          message;
+
+
+        const action =
+          notification.querySelector(
+            ".notification-action"
+          );
+
+
+        if (action) {
+
+          action.textContent =
+            actionText;
+        }
+
+
+        /*
+         * Tap also opens actionable notifications.
+         */
+
+        if (destination) {
+
+          notification.style.cursor =
+            "pointer";
+
+
+          notification.addEventListener(
+            "click",
+            () => {
+
+              window.location.href =
+                destination;
+
+            }
+          );
+        }
+
+
+        /* =============================================
+           SWIPE
+           ============================================= */
+
+        let startX = 0;
+
+        let currentX = 0;
+
+        let dragging = false;
+
+
+        notification.addEventListener(
+          "touchstart",
+          event => {
+
+            if (!event.touches.length) {
+              return;
+            }
+
+            startX =
+              event.touches[0].clientX;
+
+            currentX =
+              startX;
+
+            dragging =
+              true;
+
+          },
+          {
+            passive: true
+          }
+        );
+
+
+        notification.addEventListener(
+          "touchmove",
+          event => {
+
+            if (
+              !dragging ||
+              !event.touches.length
+            ) {
+              return;
+            }
+
+            currentX =
+              event.touches[0].clientX;
+
+
+            const distance =
+              currentX -
+              startX;
+
+
+            notification.style.transition =
+              "none";
+
+
+            notification.style.transform =
+              `translateX(${distance}px)`;
+
+
+            notification.style.opacity =
+              String(
+                Math.max(
+                  .35,
+                  1 -
+                  Math.abs(distance) /
+                  350
+                )
+              );
+
+          },
+          {
+            passive: true
+          }
+        );
+
+
+        notification.addEventListener(
+          "touchend",
+          () => {
+
+            if (!dragging) {
+              return;
+            }
+
+            dragging =
+              false;
+
+
+            const distance =
+              currentX -
+              startX;
+
+
+            notification.style.transition =
+              "";
+
+
+            if (
+              Math.abs(distance) >= 80
+            ) {
+
+              const direction =
+                distance > 0
+                  ? 1
+                  : -1;
+
+
+              notification.style.transform =
+                `translateX(${direction * 120}%)`;
+
+
+              notification.style.opacity =
+                "0";
+
+
+              if (destination) {
+
+                setTimeout(
+                  () => {
+
+                    window.location.href =
+                      destination;
+
+                  },
+                  180
+                );
+
+              } else {
+
+                setTimeout(
+                  () => {
+
+                    notification.remove();
+
+                  },
+                  260
+                );
+              }
+
+              return;
+            }
+
+
+            notification.style.transform =
+              "translateX(0)";
+
+
+            notification.style.opacity =
+              "1";
+
+          },
+          {
+            passive: true
+          }
+        );
+
+
+        notificationCenter.appendChild(
+          notification
+        );
+
+
+        return notification;
+      }
+
+
+      /* =====================================================
+         AUTO LAUNCHER
+         ===================================================== */
+
+      function launchAutoLauncher() {
+
+        /*
+         * Auto Launcher is an internal Skylark service.
+         * Correct route: /AL
+         */
+
+        const frame =
+          document.createElement(
+            "iframe"
+          );
+
+        frame.src =
+          AUTO_LAUNCHER;
+
+        frame.hidden =
+          true;
+
+        frame.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+        document.body.appendChild(
+          frame
+        );
+      }
+
+
+      /* =====================================================
+         LOAD MASTER FILE
+         ===================================================== */
+
+      async function loadEdition() {
+
+        disableDownload();
+
+
+        const device =
+          detectDevice();
+
+
+        try {
+
+          const response =
+            await fetch(
+              MASTER_FILE +
+              "?t=" +
+              Date.now(),
+              {
+                cache: "no-store"
+              }
+            );
+
+
+          if (!response.ok) {
+
+            throw new Error(
+              "Master file returned HTTP " +
+              response.status
+            );
+          }
+
+
+          const master =
+            await response.json();
+
+
+          if (!Array.isArray(master)) {
+
+            throw new Error(
+              "Master file format is invalid."
+            );
+          }
+
+
+          const edition =
+            master.find(
+              item =>
+                item &&
+                item.edition ===
+                EDITION_NAME
+            );
+
+
+          if (!edition) {
+
+            throw new Error(
+              "Edition 4 was not found."
+            );
+          }
+
+
+          if (
+            !edition.version ||
+            !edition.min ||
+            !edition.max
+          ) {
+
+            throw new Error(
+              "Edition information is incomplete."
+            );
+          }
+
+
+          const minimum =
+            parseVersion(
+              edition.min
+            );
+
+
+          const maximum =
+            parseVersion(
+              edition.max
+            );
+
+
+          if (
+            !minimum ||
+            !maximum
+          ) {
+
+            throw new Error(
+              "Compatibility information is invalid."
+            );
+          }
+
+
+          /* =============================================
+             DISPLAY MASTER INFORMATION
+             ============================================= */
+
+          versionText.textContent =
+            edition.version;
+
+
+          infoVersion.textContent =
+            edition.version;
+
+
+          infoCompatibility.textContent =
+            `iOS ${edition.min} – ${edition.max}`;
+
+
+          infoStatus.textContent =
+            edition.eol === true
+              ? "End of Life"
+              : edition.beta === true
+                ? "Beta"
+                : "Available";
+
+
+          compatibilityText.textContent =
+            `For iOS ${edition.min} through ${edition.max}`;
+
+
+          /* =============================================
+             MASTER ALERT
+             ============================================= */
+
+          if (
+            edition.alert === true &&
+            edition.alertMessage
+          ) {
+
+            createNotification({
+
+              title:
+                "Skylark Alert",
+
+              message:
+                edition.alertMessage,
+
+              icon:
+                "!"
+
+            });
+          }
+
+
+          /* =============================================
+             BETA
+             ============================================= */
+
+          if (
+            edition.beta === true
+          ) {
+
+            createNotification({
+
+              title:
+                "Beta Software",
+
+              message:
+                "This edition is currently in beta and may contain bugs or incomplete features. Using the latest available software beta is recommended.",
+
+              icon:
+                "β"
+
+            });
+          }
+
+
+          /* =============================================
+             END OF LIFE
+             ============================================= */
+
+          if (
+            edition.eol === true
+          ) {
+
+            disableDownload();
+
+
+            compatibilityText.textContent =
+              "This edition is no longer supported.";
+
+
+            createNotification({
+
+              title:
+                "End of Life",
+
+              message:
+                "Skylark (Edition 4) is no longer supported.",
+
+              icon:
+                "!",
+
+              danger:
+                true
+
+            });
+
+
+            return;
+          }
+
+
+          /* =============================================
+             DOWNLOAD LINK
+             ============================================= */
+
+          if (
+            !edition.link ||
+            typeof edition.link !==
+              "string" ||
+            !edition.link.trim()
+          ) {
+
+            disableDownload();
+
+
+            compatibilityText.textContent =
+              "Download currently unavailable.";
+
+
+            createNotification({
+
+              title:
+                "Download Unavailable",
+
+              message:
+                "A download is not currently available for this edition. Please try again later or visit Skylark Support.",
+
+              icon:
+                "!",
+
+              danger:
+                true
+
+            });
+
+
+            return;
+          }
+
+
+          /* =============================================
+             NON-APPLE DEVICE
+             ============================================= */
+
+          if (
+            !device.appleMobile
+          ) {
+
+            disableDownload();
+
+
+            compatibilityText.textContent =
+              "An iPhone or iPad is required.";
+
+
+            createNotification({
+
+              title:
+                "Non-Apple Device Detected",
+
+              message:
+                "Skylark requires a supported iPhone or iPad.",
+
+              icon:
+                "!"
+
+            });
+
+
+            return;
+          }
+
+
+          /* =============================================
+             UNKNOWN SOFTWARE VERSION
+             ============================================= */
+
+          if (
+            !device.parsedVersion
+          ) {
+
+            disableDownload();
+
+
+            compatibilityText.textContent =
+              "Software version could not be identified.";
+
+
+            createNotification({
+
+              title:
+                "Software Version Unknown",
+
+              message:
+                "Skylark could not determine your software version. Swipe to find your supported edition.",
+
+              icon:
+                "?",
+
+              actionText:
+                "Swipe to Find Edition",
+
+              destination:
+                FIND_EDITION
+
+            });
+
+
+            return;
+          }
+
+
+          const belowMinimum =
+            compareVersions(
+              device.parsedVersion,
+              minimum
+            ) < 0;
+
+
+          const aboveMaximum =
+            compareVersions(
+              device.parsedVersion,
+              maximum
+            ) > 0;
+
+
+          /* =============================================
+             SOFTWARE TOO OLD
+             ============================================= */
+
+          if (
+            belowMinimum
+          ) {
+
+            disableDownload();
+
+
+            compatibilityText.textContent =
+              `Running iOS ${device.version}`;
+
+
+            createNotification({
+
+              title:
+                "This Edition Is Too New",
+
+              message:
+                "Find your supported edition by swiping this notification.",
+
+              icon:
+                "4",
+
+              actionText:
+                "Swipe to Find Edition",
+
+              destination:
+                FIND_EDITION
+
+            });
+
+
+            return;
+          }
+
+
+          /* =============================================
+             ABOVE CONFIRMED MAXIMUM
+             ============================================= */
+
+          if (
+            aboveMaximum
+          ) {
+
+            /*
+             * Same iOS generation but newer point release.
+             */
+
+            if (
+              sameMajorVersion(
+                device.parsedVersion,
+                maximum
+              )
+            ) {
+
+              enableDownload(
+                edition.link
+              );
+
+
+              compatibilityText.textContent =
+                `Running iOS ${device.version}. Compatibility has not yet been confirmed.`;
+
+
+              createNotification({
+
+                title:
+                  "Compatibility Notice",
+
+                message:
+                  "Your software is newer than the latest version confirmed for this edition. You can still get Skylark, but compatibility has not yet been confirmed.",
+
+                icon:
+                  "!"
+
+              });
+
+
+              return;
+            }
+
+
+            /*
+             * Newer iOS generation.
+             *
+             * Keep Get Skylark available.
+             * Auto Launcher is /AL.
+             */
+
+            enableDownload(
+              edition.link
+            );
+
+
+            compatibilityText.textContent =
+              `Running iOS ${device.version}`;
+
+
+            createNotification({
+
+              title:
+                "A New Edition Is Available",
+
+              message:
+                "Swipe to learn more.",
+
+              icon:
+                "↑",
+
+              actionText:
+                "Swipe to learn more",
+
+              destination:
+                AUTO_LAUNCHER
+
+            });
+
+
+            launchAutoLauncher();
+
+
+            return;
+          }
+
+
+          /* =============================================
+             SUPPORTED
+             ============================================= */
+
+          enableDownload(
+            edition.link
+          );
+
+
+          compatibilityText.textContent =
+            `Compatible with iOS ${edition.min} through ${edition.max}.`;
+
+        }
+
+
+        /* =================================================
+           MASTER FILE / UNKNOWN ERROR
+           ================================================= */
+
+        catch (error) {
+
+          console.error(
+            "Skylark Edition 4:",
+            error
+          );
+
+
+          disableDownload();
+
+
+          versionText.textContent =
+            "Edition information unavailable";
+
+
+          infoVersion.textContent =
+            "Unavailable";
+
+
+          infoCompatibility.textContent =
+            "Unavailable";
+
+
+          infoStatus.textContent =
+            "Unavailable";
+
+
+          compatibilityText.textContent =
+            "Skylark could not load edition information.";
+
+
+          createNotification({
+
+            title:
+              "Skylark Information Unavailable",
+
+            message:
+              "Edition information could not be loaded. Please try again later.",
+
+            icon:
+              "!",
+
+            danger:
+              true
+
+          });
+        }
+      }
+
+
+      /* =====================================================
+         DISABLED BUTTON PROTECTION
+         ===================================================== */
+
+      getSkylark.addEventListener(
+        "click",
+        event => {
+
+          if (
+            getSkylark.classList.contains(
+              "disabled"
+            )
+          ) {
+
+            event.preventDefault();
+
+          }
+        }
+      );
+
+
+      /* =====================================================
+         START
+         ===================================================== */
+
+      loadEdition();
+
+    })();
+  </script>
+
+</body>
+</html>
